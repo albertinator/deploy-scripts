@@ -40,6 +40,12 @@ Copy all files in this directory to the root of your Create React App app. Then 
   </tr>
 
   <tr>
+    <td>AWS_PROFILE</td>
+    <td>Required</td>
+    <td>The name of the profile you used in <code>aws configure --profile profile_name</code></td>
+  </tr>
+
+  <tr>
     <td>BUCKET</td>
     <td>Required</td>
     <td>The S3 bucket you'd like to use for this deployment. If it doesn't exist, the script will create it.
