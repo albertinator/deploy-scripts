@@ -1,0 +1,119 @@
+{
+  "Comment": "",
+  "CacheBehaviors": {
+    "Quantity": 0
+  },
+  "IsIPV6Enabled": true,
+  "Logging": {
+    "Bucket": "${BUCKET}.s3.amazonaws.com",
+    "Prefix": "",
+    "Enabled": true,
+    "IncludeCookies": false
+  },
+  "WebACLId": "",
+  "Origins": {
+    "Items": [
+      {
+        "S3OriginConfig": {
+          "OriginAccessIdentity": ""
+        },
+        "OriginPath": "",
+        "CustomHeaders": {
+          "Quantity": 0
+        },
+        "Id": "S3-${BUCKET}",
+        "DomainName": "${BUCKET}.s3.amazonaws.com"
+      }
+    ],
+    "Quantity": 1
+  },
+  "DefaultRootObject": "index.html",
+  "PriceClass": "PriceClass_All",
+  "Enabled": true,
+  "DefaultCacheBehavior": {
+    "FieldLevelEncryptionId": "",
+    "TrustedSigners": {
+      "Enabled": false,
+      "Quantity": 0
+    },
+    "LambdaFunctionAssociations": {
+      "Items": [
+        {
+          "EventType": "origin-request",
+          "IncludeBody": false,
+          "LambdaFunctionARN": "${FUNCTION_ARN}:${LATEST_VERSION}"
+        }
+      ],
+      "Quantity": 1
+    },
+    "TargetOriginId": "S3-${BUCKET}",
+    "ViewerProtocolPolicy": "allow-all",
+    "ForwardedValues": {
+      "Headers": {
+        "Quantity": 0
+      },
+      "Cookies": {
+        "Forward": "none"
+      },
+      "QueryStringCacheKeys": {
+        "Quantity": 0
+      },
+      "QueryString": false
+    },
+    "MaxTTL": 31536000,
+    "SmoothStreaming": false,
+    "DefaultTTL": 31536000,
+    "AllowedMethods": {
+      "Items": [
+        "HEAD",
+        "GET"
+      ],
+      "CachedMethods": {
+        "Items": [
+          "HEAD",
+          "GET"
+        ],
+        "Quantity": 2
+      },
+      "Quantity": 2
+    },
+    "MinTTL": 31536000,
+    "Compress": true
+  },
+  "CallerReference": "${BUCKET}-distribution",
+  "ViewerCertificate": {
+    "CloudFrontDefaultCertificate": true,
+    "MinimumProtocolVersion": "TLSv1",
+    "CertificateSource": "cloudfront"
+  },
+  "CustomErrorResponses": {
+    "Items": [
+      {
+          "ErrorCode": 403,
+          "ResponsePagePath": "/404.html",
+          "ResponseCode": "403",
+          "ErrorCachingMinTTL": 0
+      },
+      {
+          "ErrorCode": 404,
+          "ResponsePagePath": "/404.html",
+          "ResponseCode": "404",
+          "ErrorCachingMinTTL": 0
+      }
+    ],
+    "Quantity": 2
+  },
+  "OriginGroups": {
+    "Quantity": 0
+  },
+  "HttpVersion": "http2",
+  "Restrictions": {
+    "GeoRestriction": {
+      "RestrictionType": "none",
+      "Quantity": 0
+    }
+  },
+  "Aliases": {
+    "Quantity": 0
+  }
+}
