@@ -1,5 +1,7 @@
 # Create React App to S3/Cloudfront
 
+The Create React App build process will generate a set of static files. This script places those static files in S3 as objects and then creates a Cloudfront distribution that uses the S3 bucket as a source. S3 serves its role as a reliable object store, while Cloudfront provides services for handling web requests such as CDN edge caching and invalidation, gzip compression, serving an SSL certificate, forcing a redirect to HTTPS, invoking a Lambda function upon each request, writing to logs, doing special HTTP routing, etc.
+
 ## Cloud Services used
 * AWS S3
 * AWS Cloudfront
