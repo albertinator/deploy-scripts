@@ -26,9 +26,8 @@ export AWS_PROFILE="profile_name"
 export CLUSTER_NAME="cluster_name"
 export VM_ID="app_name"
 export REGION="us-east-1"
-export ZONES="us-east-1a,us-east-1b,us-east-1d,us-east-1f"  # avoid c and e where m5 instances are not available
+export ZONES="${REGION}a,${REGION}b,${REGION}d,${REGION}f"  # avoid c and e where m5 instances are not available
 export NODE_TYPE="m5.large"
-export VERSION="$(git rev-parse --short HEAD)"
 export DOMAIN="api.domain.com"
 
 # create EKS cluster

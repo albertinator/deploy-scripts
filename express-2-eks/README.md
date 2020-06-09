@@ -14,7 +14,7 @@ If any of these assumptions are not true, it is possible to extend this setup to
 
 ## Pre-requisites
 
-1. Install Zip, JQ, Gettext
+1. Install Zip, JQ, Gettext (`envsubst` command)
 ```bash
 $ brew install zip jq gettext
 $ echo 'export PATH="/usr/local/opt/gettext/bin:$PATH"' >> ~/.bash_profile
@@ -98,7 +98,7 @@ Copy all files in this directory to the root of your Express Web API app. Then o
 
   <tr>
     <td>VERSION</td>
-    <td>Do not modify</td>
+    <td>Do not modify (<code>deploy.sh</code> only)</td>
     <td>The version by default will update itself based on your Git repository's most recent commit SHA. Only modify this if you have a better version assignment scheme.</td>
   </tr>
 
