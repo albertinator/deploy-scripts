@@ -8,3 +8,4 @@ These are designed to be run from the command line, but can also be adapted into
 * [Gatsby App to S3/Cloudfront](gatsby-2-s3cloudfront)
 * [Express Web API to Google Kubernetes Engine (GKE)](express-2-gke)
 * [Express Web API to Amazon Elastic Kubernetes Service (EKS)](express-2-eks)
+  * [CI/CD to EKS](express-2-eks/cicd)
