@@ -1,0 +1,25 @@
+FROM docker:stable
+RUN apk add --update make curl ca-certificates openssl python gettext jq && \
+  apk add --update -t deps py-pip && \
+  update-ca-certificates
+
+ENV KUBE_LATEST_VERSION="v1.18.0"
+ENV PATH="~/.local/bin:$PATH"
+ENV BASE_DIR /
+WORKDIR $BASE_DIR
+
+# AWS CLI & aws-iam-authenticator
+RUN pip install awscli --upgrade --user && \
+  mv ~/.local/bin/* /usr/local/bin && \
+  curl https://amazon-eks.s3-us-west-2.amazonaws.com/1.14.6/2019-08-22/bin/linux/amd64/aws-iam-authenticator -o /usr/local/bin/aws-iam-authenticator && \
+  chmod +x /usr/local/bin/aws-iam-authenticator
+
+# eksctl and kubectl
+RUN curl -L https://storage.googleapis.com/kubernetes-release/release/${KUBE_LATEST_VERSION}/bin/linux/amd64/kubectl -o /usr/local/bin/kubectl && \
+  chmod +x /usr/local/bin/kubectl && \
+  curl --silent --location "https://github.com/weaveworks/eksctl/releases/download/latest_release/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp && \
+  mv /tmp/eksctl /usr/local/bin
+
+# clean up
+RUN apk del --purge deps && \
+  rm -rf /var/cache/apk/*
