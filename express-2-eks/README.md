@@ -174,7 +174,7 @@ spec:
               key: NEW_VAR
 ```
 
-Finally, to deploy from the command line, run:
+Finally, to deploy the app from the command line, run:
 ```bash
 $ ./deploy.sh
 ```
