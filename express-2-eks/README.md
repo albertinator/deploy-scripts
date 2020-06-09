@@ -32,13 +32,18 @@ $ sudo ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
 $ aws configure --profile profile_name
 ```
 
-4. Install `eksctl`
+4. Install `aws-iam-authenticator`
+```bash
+$ brew install aws-iam-authenticator
+```
+
+5. Install `eksctl`
 ```bash
 $ brew tap weaveworks/tap
 $ brew install weaveworks/tap/eksctl
 ```
 
-5. Install `kubectl`
+6. Install `kubectl`
 ```bash
 $ brew install kubectl
 ```
