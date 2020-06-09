@@ -48,6 +48,13 @@ $ brew install weaveworks/tap/eksctl
 $ brew install kubectl
 ```
 
+7. Install `helm`
+```bash
+$ curl -o get_helm.sh https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get
+$ chmod +x get_helm.sh
+$ ./get_helm.sh
+```
+
 ## Usage
 
 Copy all files in this directory to the root of your Express Web API app. Then open both `deploy-cluster.sh` and `deploy.sh` and replace the following variables at the top:
