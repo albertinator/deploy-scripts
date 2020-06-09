@@ -119,7 +119,6 @@ $ ./deploy-cluster.sh
 Then set your domain's DNS record (A or CNAME) to this cluster's NGINX Ingress' external IP:
 ```bash
 $ kubectl get svc -n nginx-ingress
-NAME                            TYPE           CLUSTER-IP       EXTERNAL-IP                                                              PORT(S)                      AGE
 NAME                            TYPE           CLUSTER-IP      EXTERNAL-IP     PORT(S)                      AGE
 nginx-ingress-controller        LoadBalancer   10.31.254.118   35.225.12.49   80:32101/TCP,443:32504/TCP   1d
 ```
