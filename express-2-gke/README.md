@@ -6,6 +6,13 @@ The architecture of this Kubernetes deployment is designed with the following as
 
 If any of these assumptions are not true, it is possible to extend this setup to accomodate the additional requirement(s). Those instructions are beyond the scope of this more simple setup.
 
+**NOTE**: the cluster as deployed in `deploy-cluster.sh` also includes a custom network on which a NAT router is deployed. This makes it such that all egress (outgoing) traffic from the cluster is translated to a single static IP address, making it possible to whitelist that NAT IP address to secure external services. If you would like to deploy without a NAT router, just remove the lines that reference the NAT router variables. Otherwise, the static IP address to whitelist can be found by running:
+```bash
+$ gcloud compute addresses list
+```
+
+**NOTE**: the cluster as deployed in `deploy-cluster.sh` also restricts access to Kubernetes master to a few IP addresses (explicitly listed in `MASTER_AUTHORIZED_NETWORKS`). If you would like to deploy without this restriction, simply remove the `gcloud container clusters update` line.
+
 ## Cloud Services used
 * Google Kubernetes Engine (GKE)
 * Google Cloud NAT
