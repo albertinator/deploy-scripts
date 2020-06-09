@@ -86,3 +86,26 @@ Then check these files into your repository. To deploy from the command line, ru
 ```bash
 $ ./deploy.sh
 ```
+
+## Breakdown of `deploy.sh`
+
+* Builds this React app as static files
+* Sync static files to S3
+* Set the S3 bucket to serve static website content
+  * Set index document to `index.html`
+  * To make it play nice with React Router, set the error document to `index.html` as well
+* Distribute via Cloudfront CDN, connected to the S3 bucket
+  * Connect to the public S3 bucket website
+  * Connect an SSL certificate created on [AWS Certificate Manager](https://console.aws.amazon.com/acm/home?region=us-east-1)
+  * Redirect HTTP to HTTPS
+  * Customize object caching with TTL of 31536000 (for min, max, and default TTL)
+  * Compress objects automatically
+  * Alternate domain names: `www.domain.com`
+  * Default root object: `index.html`
+  * To make it play nice with React Router, set the error document to `index.html` as well. Do this by going to the **Error Pages** tab for the distribution and clicking "reate Custom Error Response" for 404 (Not Found) and 403 (Forbidden) errors
+    * Error Caching Minimum TTL: `0`
+    * Response Page Path: `/index.html`
+    * HTTP Response Code: `200 OK`
+    * Actual 404 paths should be handled by the catch-all React Router route
+* Invalidate Cloudfront CDN distribution upon every new deployment
+* Point the `www` CNAME for `domain.com` to the Cloudfront domain name (it will look something like `dxxwhv5tk782l.cloudfront.net`)

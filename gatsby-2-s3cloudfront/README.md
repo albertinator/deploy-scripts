@@ -30,7 +30,7 @@ $ aws configure --profile profile_name
 
 ## Usage
 
-Copy all files in this directory to the root of your Create React App app. Then open `deploy.sh` and replace the following variables at the top:
+Copy all files in this directory to the root of your Gatsby app. Then open `deploy.sh` and replace the following variables at the top:
 
 <table>
   <tr>
@@ -86,3 +86,26 @@ Then check these files into your repository. To deploy from the command line, ru
 ```bash
 $ ./deploy.sh
 ```
+
+## Breakdown of `deploy.sh`
+
+* Builds this Gatsby app as static files
+* Sync static files to S3
+* Set the S3 bucket to serve static website content
+  * Set index document to `index.html`
+* Distribute via Cloudfront CDN, connected to the S3 bucket
+  * Connect to the public S3 bucket website
+  * Connect an SSL certificate created on [AWS Certificate Manager](https://console.aws.amazon.com/acm/home?region=us-east-1)
+  * Redirect HTTP to HTTPS
+  * Customize object caching with TTL of 31536000 (for min, max, and default TTL)
+  * Compress objects automatically
+  * Alternate domain names: `www.domain.com`
+  * Default root object: `index.html`
+  * To direct 404s to `404.html` page, set the error document for 404 and 403 error codes to `404.html`. Do this by going to the **Error Pages** tab for the distribution and clicking "reate Custom Error Response" for 404 (Not Found) and 403 (Forbidden) errors
+    * Error Caching Minimum TTL: `0`
+    * Response Page Path: `/404.html`
+    * HTTP Response Code: `403 Forbidden` or `404 Not Found`, respectively
+* Invalidate Cloudfront CDN distribution upon every new deployment
+* Point the `www` CNAME for `domain.com` to the Cloudfront domain name (it will look something like `dxxwhv5tk782l.cloudfront.net`)
+
+This deploy script also uses a Lambda function (set to run on every request in Cloudfront) to rewrite URLs with a trailing `/` to remove the trailing `/`. This is especially noticeable on static site generators like Gatsby because sub-paths are implemented by generating folders with an `index.html` within.
