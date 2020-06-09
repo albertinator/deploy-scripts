@@ -4,7 +4,6 @@ An example configuration of a CI/CD script for deploying to EKS. Additionally, t
 
 ## Cloud Services used
 * AWS Elastic Kubernetes Service (EKS)
-* AWS Elastic Container Registry (ECR)
 * Gitlab CI/CD
 
 ## Pre-requisites
@@ -20,7 +19,7 @@ $ docker push org_name/eks-deploy
 
 ## Usage
 
-Copy all files in this directory to the root of your Express Web API app. Then open `deploy-cicd-user.sh` and replace the following variables at the top:
+Copy all files in this directory to the root of your Express Web API app. Then open both `deploy-cicd-user.sh` and `.gitlab-ci.yml` and replace the following variables at the top:
 
 <table>
   <tr>
@@ -32,7 +31,7 @@ Copy all files in this directory to the root of your Express Web API app. Then o
   <tr>
     <td>AWS_ACCOUNT_ID</td>
     <td>Required</td>
-    <td>This is needed by the naming convention for Docker images in the AWS Elastic Container Registry. This can be found in your <a href="https://console.aws.amazon.com/iam" target="_blank">IAM dashboard</a>.</td>
+    <td>This is needed to reference roles and policies by ARN. This can be found in your <a href="https://console.aws.amazon.com/iam" target="_blank">IAM dashboard</a>.</td>
   </tr>
 
   <tr>
@@ -59,6 +58,8 @@ Copy all files in this directory to the root of your Express Web API app. Then o
     <td>The AWS region you'd like to use for this deployment. This is used to determine where the Kubernetes cluster will be deployed.</td>
   </tr>
 </table>
+
+**NOTE**: for any variable name found in *both* `deploy-cicd-user.sh` and `.gitlab-ci.yml`, the corresponding values MUST be equivalent across both files.
 
 Then check all files into your repository.
 

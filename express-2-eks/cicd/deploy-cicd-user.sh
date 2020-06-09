@@ -15,6 +15,10 @@ export AWS_PROFILE="profile_name"
 export CLUSTER_NAME="cluster_name"
 export REGION="us-east-1"
 
+# Select EKS cluster
+eksctl utils write-kubeconfig --profile ${AWS_PROFILE} --cluster ${CLUSTER_NAME} --region ${REGION}
+kubectl get nodes
+
 # Create IAM user ci-cd
 aws iam create-user --profile ${AWS_PROFILE} --user-name ci-cd
 
