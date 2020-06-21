@@ -65,8 +65,8 @@ kubectl get deployments -n kube-system tiller-deploy
 while [ "$TILLER_RUNNING_STATUS" != "OK" ]
 do
   export TILLER_RUNNING_STATUS="$(kubectl get pods -n kube-system | grep tiller-deploy | grep Running > /dev/null 2>&1 && echo OK || echo FAILED)"
+  sleep 10
 done
-sleep 10
 
 # Install Nginx Ingress Controller (if doesn't exist)
 export NGINX_INGRESS_CTRLR_STATUS="$(kubectl get deployment nginx-ingress-controller nginx-ingress-default-backend -n nginx-ingress > /dev/null 2>&1 && echo OK || echo FAILED)"
