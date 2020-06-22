@@ -29,7 +29,8 @@ export VPN_IP="87.65.43.21"
 export CI_RUNNER_IP="14.23.58.67"
 export MASTER_AUTHORIZED_NETWORKS="${OFFICE_IP}/32,${VPN_IP}/32,${CI_RUNNER_IP}/32"
 
-# Prep NAT router variables
+# NAT gateway/router
+export USE_NAT="true"
 export CUSTOM_NETWORK="${CLUSTER_NAME}-custom-network"
 export SUBNET="subnet-${REGION}-192"
 export STATIC_IP_NAME="${CLUSTER_NAME}-static-ip"
@@ -39,75 +40,93 @@ export ROUTER_CONFIG_NAME="nat-config"
 # Set the project
 gcloud config set project ${PROJECT_ID}
 
-# create custom network and subnet if not exist
-export CUSTOM_NETWORK_STATUS="$(gcloud compute networks describe ${CUSTOM_NETWORK} > /dev/null 2>&1 && echo OK || echo FAILED)"
-if [ "$CUSTOM_NETWORK_STATUS" != "OK" ]
+if [ "$USE_NAT" = "true" ]
 then
-  echo "$(tput setaf 2)Creating custom network ${CUSTOM_NETWORK} and subnet ${SUBNET}...$(tput sgr0)"
-  gcloud compute networks create ${CUSTOM_NETWORK} --subnet-mode custom
-  gcloud compute networks subnets create ${SUBNET} --network ${CUSTOM_NETWORK} --region ${REGION} --range 192.168.1.0/24
+  # create custom network and subnet if not exist
+  export CUSTOM_NETWORK_STATUS="$(gcloud compute networks describe ${CUSTOM_NETWORK} > /dev/null 2>&1 && echo OK || echo FAILED)"
+  if [ "$CUSTOM_NETWORK_STATUS" != "OK" ]
+  then
+    echo "$(tput setaf 2)Creating custom network ${CUSTOM_NETWORK} and subnet ${SUBNET}...$(tput sgr0)"
+    gcloud compute networks create ${CUSTOM_NETWORK} --subnet-mode custom
+    gcloud compute networks subnets create ${SUBNET} --network ${CUSTOM_NETWORK} --region ${REGION} --range 192.168.1.0/24
+  fi
+  gcloud compute networks list
+  gcloud compute networks subnets list --network ${CUSTOM_NETWORK}
 fi
-gcloud compute networks list
-gcloud compute networks subnets list --network ${CUSTOM_NETWORK}
 
 # create cluster if not exist
 export CLUSTER_STATUS="$(gcloud container clusters describe ${CLUSTER_NAME} --zone ${ZONE} > /dev/null 2>&1 && echo OK || echo FAILED)"
 if [ "$CLUSTER_STATUS" != "OK" ]
 then
   echo "$(tput setaf 2)Creating cluster ${CLUSTER_NAME}...$(tput sgr0)"
-  gcloud container clusters create ${CLUSTER_NAME} \
-    --zone ${ZONE} \
-    --username admin \
-    --cluster-version latest \
-    --machine-type ${NODE_TYPE} \
-    --image-type "COS" \
-    --disk-type "pd-standard" \
-    --disk-size "100" \
-    --scopes "https://www.googleapis.com/auth/compute","https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https://www.googleapis.com/auth/monitoring","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.readonly","https://www.googleapis.com/auth/trace.append" \
-    --num-nodes 2 \
-    --enable-cloud-logging \
-    --enable-cloud-monitoring \
-    --enable-private-nodes \
-    --master-ipv4-cidr "172.16.0.0/28" \
-    --enable-ip-alias \
-    --network "projects/${PROJECT_ID}/global/networks/${CUSTOM_NETWORK}" \
-    --subnetwork "projects/${PROJECT_ID}/regions/${REGION}/subnetworks/${SUBNET}" \
-    --max-nodes-per-pool 110 \
-    --addons HorizontalPodAutoscaling,HttpLoadBalancing,KubernetesDashboard \
-    --enable-autoupgrade \
-    --enable-autorepair
-  gcloud container clusters update ${CLUSTER_NAME} \
-    --zone ${ZONE} \
-    --enable-master-authorized-networks \
-    --master-authorized-networks ${MASTER_AUTHORIZED_NETWORKS}
+  if [ "$USE_NAT" = "true" ]
+  then
+    gcloud container clusters create ${CLUSTER_NAME} \
+      --zone ${ZONE} \
+      --username admin \
+      --cluster-version latest \
+      --machine-type ${NODE_TYPE} \
+      --image-type "COS" \
+      --disk-type "pd-standard" \
+      --disk-size "100" \
+      --scopes "https://www.googleapis.com/auth/compute","https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https://www.googleapis.com/auth/monitoring","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.readonly","https://www.googleapis.com/auth/trace.append" \
+      --num-nodes 2 \
+      --enable-cloud-logging \
+      --enable-cloud-monitoring \
+      --enable-private-nodes \
+      --master-ipv4-cidr "172.16.0.0/28" \
+      --enable-ip-alias \
+      --network "projects/${PROJECT_ID}/global/networks/${CUSTOM_NETWORK}" \
+      --subnetwork "projects/${PROJECT_ID}/regions/${REGION}/subnetworks/${SUBNET}" \
+      --max-nodes-per-pool 110 \
+      --addons HorizontalPodAutoscaling,HttpLoadBalancing,KubernetesDashboard \
+      --enable-autoupgrade \
+      --enable-autorepair
+    gcloud container clusters update ${CLUSTER_NAME} \
+      --zone ${ZONE} \
+      --enable-master-authorized-networks \
+      --master-authorized-networks ${MASTER_AUTHORIZED_NETWORKS}
+  else
+    gcloud container clusters create ${CLUSTER_NAME} \
+      --zone ${ZONE}
+      --num-nodes 2 \
+      --enable-cloud-logging \
+      --enable-cloud-monitoring \
+      --addons HorizontalPodAutoscaling,HttpLoadBalancing,KubernetesDashboard \
+      --enable-autoupgrade \
+      --enable-autorepair
+  fi
 fi
 gcloud container clusters list
 
-# create static IP for NAT router
-export STATIC_IP_STATUS="$(gcloud compute addresses describe ${STATIC_IP_NAME} --region ${REGION} > /dev/null 2>&1 && echo OK || echo FAILED)"
-if [ "$STATIC_IP_STATUS" != "OK" ]
+if [ "$USE_NAT" = "true" ]
 then
-  echo "$(tput setaf 2)Creating static IP ${STATIC_IP_NAME}...$(tput sgr0)"
-  gcloud compute addresses create ${STATIC_IP_NAME} --region ${REGION}
+  # create static IP for NAT router
+  export STATIC_IP_STATUS="$(gcloud compute addresses describe ${STATIC_IP_NAME} --region ${REGION} > /dev/null 2>&1 && echo OK || echo FAILED)"
+  if [ "$STATIC_IP_STATUS" != "OK" ]
+  then
+    echo "$(tput setaf 2)Creating static IP ${STATIC_IP_NAME}...$(tput sgr0)"
+    gcloud compute addresses create ${STATIC_IP_NAME} --region ${REGION}
+  fi
+  gcloud compute addresses list
+  
+  # create NAT router and config if not exist
+  export ROUTER_STATUS="$(gcloud compute routers describe ${ROUTER_NAME} --region ${REGION} > /dev/null 2>&1 && echo OK || echo FAILED)"
+  if [ "$ROUTER_STATUS" != "OK" ]
+  then
+    echo "$(tput setaf 2)Creating router ${ROUTER_NAME} and config ${ROUTER_CONFIG_NAME}...$(tput sgr0)"
+    gcloud compute routers create ${ROUTER_NAME} \
+      --network ${CUSTOM_NETWORK} \
+      --region ${REGION}
+    gcloud compute routers nats create ${ROUTER_CONFIG_NAME} \
+      --router-region ${REGION} \
+      --router ${ROUTER_NAME} \
+      --nat-external-ip-pool=${STATIC_IP_NAME} \
+      --nat-all-subnet-ip-ranges
+  fi
+  gcloud compute routers list
+  gcloud compute routers nats list --router ${ROUTER_NAME} --router-region ${REGION}
 fi
-gcloud compute addresses list
-
-# create NAT router and config if not exist
-export ROUTER_STATUS="$(gcloud compute routers describe ${ROUTER_NAME} --region ${REGION} > /dev/null 2>&1 && echo OK || echo FAILED)"
-if [ "$ROUTER_STATUS" != "OK" ]
-then
-  echo "$(tput setaf 2)Creating router ${ROUTER_NAME} and config ${ROUTER_CONFIG_NAME}...$(tput sgr0)"
-  gcloud compute routers create ${ROUTER_NAME} \
-    --network ${CUSTOM_NETWORK} \
-    --region ${REGION}
-  gcloud compute routers nats create ${ROUTER_CONFIG_NAME} \
-    --router-region ${REGION} \
-    --router ${ROUTER_NAME} \
-    --nat-external-ip-pool=${STATIC_IP_NAME} \
-    --nat-all-subnet-ip-ranges
-fi
-gcloud compute routers list
-gcloud compute routers nats list --router ${ROUTER_NAME} --router-region ${REGION}
 
 # Install Tiller (if doesn't exist)
 export TILLER_STATUS="$(kubectl get serviceaccount --namespace kube-system tiller > /dev/null 2>&1 && echo OK || echo FAILED)"

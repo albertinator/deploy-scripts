@@ -30,11 +30,19 @@ export ZONES="${REGION}a,${REGION}b,${REGION}d,${REGION}f"  # avoid c and e wher
 export NODE_TYPE="m5.large"
 export DOMAIN="api.domain.com"
 
+# NAT gateway/router
+export USE_NAT="true"
+
 # create EKS cluster
 export CLUSTER_STATUS=$(eksctl get cluster --profile ${AWS_PROFILE} --region ${REGION} --name ${CLUSTER_NAME} > /dev/null 2>&1 && echo OK || echo FAILED)
 if [ "$CLUSTER_STATUS" = "FAILED" ]  # only if cluster doesn't already exist
 then
-  eksctl create cluster --profile ${AWS_PROFILE} --region ${REGION} --name ${CLUSTER_NAME} --zones ${ZONES} --node-type ${NODE_TYPE}
+  if [ "$USE_NAT" = "true" ]
+  then
+    eksctl create cluster --profile ${AWS_PROFILE} --region ${REGION} --name ${CLUSTER_NAME} --zones ${ZONES} --node-type ${NODE_TYPE} --node-private-networking --vpc-nat-mode HighlyAvailable
+  else
+    eksctl create cluster --profile ${AWS_PROFILE} --region ${REGION} --name ${CLUSTER_NAME} --zones ${ZONES} --node-type ${NODE_TYPE}
+  fi
   echo "$(tput setaf 2)Created cluster $(tput setab 4)${CLUSTER_NAME}$(tput sgr0)"
 fi
 
@@ -108,3 +116,5 @@ kubectl get deployments -n monitoring
 echo "$(tput setaf 2)Cluster ${CLUSTER_NAME} is all set!$(tput sgr0)"
 
 # Set DNS A or CNAME record to point to Nginx Ingress controller IP (get via `kubectl get svc -n nginx-ingress`)
+
+# Whitelist on external services the static IP address for NAT (look at NAT Gateway in AWS console)
