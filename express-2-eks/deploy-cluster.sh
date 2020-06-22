@@ -32,6 +32,7 @@ export DOMAIN="api.domain.com"
 
 # NAT gateway/router
 export USE_NAT="true"
+export NAT_ZONES="${REGION}a,${REGION}b"  # Do the minimum 2 zones because HighlyAvailable NAT means IP in each AZ
 
 # create EKS cluster
 export CLUSTER_STATUS=$(eksctl get cluster --profile ${AWS_PROFILE} --region ${REGION} --name ${CLUSTER_NAME} > /dev/null 2>&1 && echo OK || echo FAILED)
@@ -39,7 +40,7 @@ if [ "$CLUSTER_STATUS" = "FAILED" ]  # only if cluster doesn't already exist
 then
   if [ "$USE_NAT" = "true" ]
   then
-    eksctl create cluster --profile ${AWS_PROFILE} --region ${REGION} --name ${CLUSTER_NAME} --zones ${ZONES} --node-type ${NODE_TYPE} --node-private-networking --vpc-nat-mode HighlyAvailable
+    eksctl create cluster --profile ${AWS_PROFILE} --region ${REGION} --name ${CLUSTER_NAME} --zones ${NAT_ZONES} --node-type ${NODE_TYPE} --node-private-networking --vpc-nat-mode HighlyAvailable
   else
     eksctl create cluster --profile ${AWS_PROFILE} --region ${REGION} --name ${CLUSTER_NAME} --zones ${ZONES} --node-type ${NODE_TYPE}
   fi
