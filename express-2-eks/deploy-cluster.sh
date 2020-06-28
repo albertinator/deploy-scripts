@@ -70,6 +70,7 @@ then
   then
     echo "$(tput setaf 2)Restricting Kubernetes API for cluster ${CLUSTER_NAME} to ${MASTER_AUTHORIZED_NETWORKS}...$(tput sgr0)"
     eksctl utils set-public-access-cidrs \
+      --approve \
       --profile ${AWS_PROFILE} \
       --cluster=${CLUSTER_NAME} \
       ${MASTER_AUTHORIZED_NETWORKS}
