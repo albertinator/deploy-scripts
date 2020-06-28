@@ -8,6 +8,9 @@
 # $ brew install aws-iam-authenticator
 # Install Kubectl:
 # $ brew install kubectl
+# Install envsubst command:
+# $ brew install gettext
+# $ echo 'export PATH="/usr/local/opt/gettext/bin:$PATH"' >> ~/.bash_profile
 
 # Prep variables
 export AWS_ACCOUNT_ID="account_id"
