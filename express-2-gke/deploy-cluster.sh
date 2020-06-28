@@ -23,19 +23,20 @@ export ZONE="${REGION}-c"
 export NODE_TYPE="n1-standard-1"
 export DOMAIN="api.domain.com"
 
-# Prep security variables
-export OFFICE_IP="12.34.56.78"
-export VPN_IP="87.65.43.21"
-export CI_RUNNER_IP="14.23.58.67"
-export MASTER_AUTHORIZED_NETWORKS="${OFFICE_IP}/32,${VPN_IP}/32,${CI_RUNNER_IP}/32"
-
-# NAT gateway/router
+# NAT gateway/router (optional but recommended)
 export USE_NAT="true"
 export CUSTOM_NETWORK="${CLUSTER_NAME}-custom-network"
 export SUBNET="subnet-${REGION}-192"
 export STATIC_IP_NAME="${CLUSTER_NAME}-static-ip"
 export ROUTER_NAME="nat-router"
 export ROUTER_CONFIG_NAME="nat-config"
+
+# Restricting Kube API access (optional but recommended)
+export RESTRICT_API="true"
+export OFFICE_IP="12.34.56.78"
+export VPN_IP="87.65.43.21"
+export CI_RUNNER_IP="14.23.58.67"
+export MASTER_AUTHORIZED_NETWORKS="${OFFICE_IP}/32,${VPN_IP}/32,${CI_RUNNER_IP}/32"
 
 # Set the project
 gcloud config set project ${PROJECT_ID}
@@ -54,13 +55,14 @@ then
   gcloud compute networks subnets list --network ${CUSTOM_NETWORK}
 fi
 
-# create cluster if not exist
+# create GKE cluster
 export CLUSTER_STATUS="$(gcloud container clusters describe ${CLUSTER_NAME} --zone ${ZONE} > /dev/null 2>&1 && echo OK || echo FAILED)"
 if [ "$CLUSTER_STATUS" != "OK" ]
 then
   echo "$(tput setaf 2)Creating cluster ${CLUSTER_NAME}...$(tput sgr0)"
   if [ "$USE_NAT" = "true" ]
   then
+    echo "$(tput setaf 2)with NAT gateway...$(tput sgr0)"
     gcloud container clusters create ${CLUSTER_NAME} \
       --zone ${ZONE} \
       --username admin \
@@ -82,10 +84,6 @@ then
       --addons HorizontalPodAutoscaling,HttpLoadBalancing,KubernetesDashboard \
       --enable-autoupgrade \
       --enable-autorepair
-    gcloud container clusters update ${CLUSTER_NAME} \
-      --zone ${ZONE} \
-      --enable-master-authorized-networks \
-      --master-authorized-networks ${MASTER_AUTHORIZED_NETWORKS}
   else
     gcloud container clusters create ${CLUSTER_NAME} \
       --zone ${ZONE}
@@ -95,6 +93,16 @@ then
       --addons HorizontalPodAutoscaling,HttpLoadBalancing,KubernetesDashboard \
       --enable-autoupgrade \
       --enable-autorepair
+  fi
+  echo "$(tput setaf 2)Created cluster $(tput setab 4)${CLUSTER_NAME}$(tput sgr0)"
+
+  if [ "$RESTRICT_API" = "true" ]
+  then
+    echo "$(tput setaf 2)Restricting Kubernetes API for cluster ${CLUSTER_NAME} to ${MASTER_AUTHORIZED_NETWORKS}...$(tput sgr0)"
+    gcloud container clusters update ${CLUSTER_NAME} \
+      --zone ${ZONE} \
+      --enable-master-authorized-networks \
+      --master-authorized-networks ${MASTER_AUTHORIZED_NETWORKS}
   fi
 fi
 gcloud container clusters list

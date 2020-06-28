@@ -30,9 +30,16 @@ export ZONES="${REGION}a,${REGION}b,${REGION}d,${REGION}f"  # avoid c and e wher
 export NODE_TYPE="m5.large"
 export DOMAIN="api.domain.com"
 
-# NAT gateway/router
+# NAT gateway/router (optional but recommended)
 export USE_NAT="true"
 export NAT_ZONES="${REGION}a,${REGION}b"  # Do the minimum 2 zones because HighlyAvailable NAT means IP in each AZ
+
+# Restricting Kube API access (optional but recommended)
+export RESTRICT_API="true"
+export OFFICE_IP="12.34.56.78"
+export VPN_IP="87.65.43.21"
+export CI_RUNNER_IP="14.23.58.67"
+export MASTER_AUTHORIZED_NETWORKS="${OFFICE_IP}/32,${VPN_IP}/32,${CI_RUNNER_IP}/32"
 
 # create EKS cluster
 export CLUSTER_STATUS=$(eksctl get cluster --profile ${AWS_PROFILE} --region ${REGION} --name ${CLUSTER_NAME} > /dev/null 2>&1 && echo OK || echo FAILED)
@@ -40,11 +47,33 @@ if [ "$CLUSTER_STATUS" = "FAILED" ]  # only if cluster doesn't already exist
 then
   if [ "$USE_NAT" = "true" ]
   then
-    eksctl create cluster --profile ${AWS_PROFILE} --region ${REGION} --name ${CLUSTER_NAME} --zones ${NAT_ZONES} --node-type ${NODE_TYPE} --node-private-networking --vpc-nat-mode HighlyAvailable
+    echo "$(tput setaf 2)with NAT gateway...$(tput sgr0)"
+    eksctl create cluster \
+      --profile ${AWS_PROFILE} \
+      --region ${REGION} \
+      --name ${CLUSTER_NAME} \
+      --zones ${NAT_ZONES} \
+      --node-type ${NODE_TYPE} \
+      --node-private-networking \
+      --vpc-nat-mode HighlyAvailable
   else
-    eksctl create cluster --profile ${AWS_PROFILE} --region ${REGION} --name ${CLUSTER_NAME} --zones ${ZONES} --node-type ${NODE_TYPE}
+    eksctl create cluster \
+      --profile ${AWS_PROFILE} \
+      --region ${REGION} \
+      --name ${CLUSTER_NAME} \
+      --zones ${ZONES} \
+      --node-type ${NODE_TYPE}
   fi
   echo "$(tput setaf 2)Created cluster $(tput setab 4)${CLUSTER_NAME}$(tput sgr0)"
+
+  if [ "$RESTRICT_API" = "true" ]
+  then
+    echo "$(tput setaf 2)Restricting Kubernetes API for cluster ${CLUSTER_NAME} to ${MASTER_AUTHORIZED_NETWORKS}...$(tput sgr0)"
+    eksctl utils set-public-access-cidrs \
+      --profile ${AWS_PROFILE} \
+      --cluster=${CLUSTER_NAME} \
+      ${MASTER_AUTHORIZED_NETWORKS}
+  fi
 fi
 
 # Select EKS cluster
