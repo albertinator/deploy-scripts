@@ -13,10 +13,10 @@
 # $ echo 'export PATH="/usr/local/opt/gettext/bin:$PATH"' >> ~/.bash_profile
 
 # Prep variables
-export AWS_ACCOUNT_ID="account_id"
 export AWS_PROFILE="profile_name"
 export CLUSTER_NAME="cluster_name"
 export REGION="us-east-1"
+export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --profile ${AWS_PROFILE} --output text --query 'Account')
 
 # Select EKS cluster
 eksctl utils write-kubeconfig --profile ${AWS_PROFILE} --cluster ${CLUSTER_NAME} --region ${REGION}
@@ -43,6 +43,9 @@ aws iam attach-group-policy --profile ${AWS_PROFILE} --group-name ci-cd --policy
 aws iam attach-group-policy --profile ${AWS_PROFILE} --group-name ci-cd --policy-arn arn:aws:iam::aws:policy/AmazonEKSClusterPolicy
 aws iam attach-group-policy --profile ${AWS_PROFILE} --group-name ci-cd --policy-arn arn:aws:iam::aws:policy/AmazonEKSServicePolicy
 aws iam attach-group-policy --profile ${AWS_PROFILE} --group-name ci-cd --policy-arn arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+aws iam attach-group-policy --profile ${AWS_PROFILE} --group-name ci-cd --policy-arn arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser
+aws iam attach-group-policy --profile ${AWS_PROFILE} --group-name ci-cd --policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess
+aws iam attach-group-policy --profile ${AWS_PROFILE} --group-name ci-cd --policy-arn arn:aws:iam::aws:policy/CloudFrontFullAccess
 
 # Add the IAM user to the group
 aws iam add-user-to-group --profile ${AWS_PROFILE} --group-name ci-cd --user-name ci-cd
@@ -57,3 +60,10 @@ kubectl apply -f k8s/cicd-rolebinding.yaml
 kubectl get configmap aws-auth -n kube-system -o yaml | sed "/  mapRoles: |/a \ \ \ \ - rolearn: arn:aws:iam::${AWS_ACCOUNT_ID}:role\/KubernetesCiCd\n\ \ \ \ \ \ username: ci-cd-role" > new-aws-auth-configmap.yaml
 kubectl apply -f new-aws-auth-configmap.yaml
 rm new-aws-auth-configmap.yaml
+
+# Finally, set local kube config to use aws-iam-authenticator
+export CLUSTER_ENDPOINT=$(aws eks describe-cluster --name ${CLUSTER_NAME} --profile ${AWS_PROFILE} --region ${REGION} --output text --query 'cluster.endpoint')
+export CERTIFICATE_AUTHORITY_DATA=$(aws eks describe-cluster --name ${CLUSTER_NAME} --profile ${AWS_PROFILE} --region ${REGION} --output text --query 'cluster.certificateAuthority.data')
+cat k8s/kubeconfig-cicd.yaml | envsubst > k8s/kubeconfig-cicd.final.yaml
+echo export KUBECONFIG=$(pwd)/k8s/kubeconfig-cicd.final.yaml >> ~/.bash_profile  # all future shell sessions
+export KUBECONFIG=$(pwd)/k8s/kubeconfig-cicd.final.yaml

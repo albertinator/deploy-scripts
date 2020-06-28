@@ -10,11 +10,15 @@ rules:
       - "batch"
       - "extensions"
     resources:
+      - "deployments"
       - "cronjobs"
       - "jobs"
       - "secrets"
+      - "pods"
     verbs:
       - "create"
+      - "describe"
+      - "get"
       - "list"
       - "patch"
       - "update"
