@@ -14,9 +14,9 @@
 
 # Prep variables
 export AWS_PROFILE="profile_name"
+export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --profile ${AWS_PROFILE} --output text --query 'Account')
 export CLUSTER_NAME="cluster_name"
 export REGION="us-east-1"
-export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --profile ${AWS_PROFILE} --output text --query 'Account')
 
 # Select EKS cluster
 eksctl utils write-kubeconfig --profile ${AWS_PROFILE} --cluster ${CLUSTER_NAME} --region ${REGION}

@@ -67,15 +67,15 @@ Copy all files in this directory to the root of your Express Web API app. Then o
   </tr>
 
   <tr>
-    <td>AWS_ACCOUNT_ID</td>
-    <td>Required (<code>deploy.sh</code> only)</td>
-    <td>This is needed by the naming convention for Docker images in the AWS Elastic Container Registry. This can be found in your <a href="https://console.aws.amazon.com/iam" target="_blank">IAM dashboard</a>.</td>
-  </tr>
-
-  <tr>
     <td>AWS_PROFILE</td>
     <td>Required</td>
     <td>The name of the profile you used in <code>aws configure --profile profile_name</code></td>
+  </tr>
+
+  <tr>
+    <td>AWS_ACCOUNT_ID</td>
+    <td>Do not modify (<code>deploy.sh</code> only)</td>
+    <td>This is needed by the naming convention for Docker images in the AWS Elastic Container Registry. This can be found in your <a href="https://console.aws.amazon.com/iam" target="_blank">IAM dashboard</a>. This should be retrieved via <code>aws</code> command.</td>
   </tr>
 
   <tr>

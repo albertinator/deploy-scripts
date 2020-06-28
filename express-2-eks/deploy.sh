@@ -14,8 +14,8 @@
 # $ echo 'export PATH="/usr/local/opt/gettext/bin:$PATH"' >> ~/.bash_profile
 
 # Prep variables
-export AWS_ACCOUNT_ID="account_id"
 export AWS_PROFILE="profile_name"
+export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --profile ${AWS_PROFILE} --output text --query 'Account')
 export CLUSTER_NAME="cluster_name"
 export VM_ID="app_name"
 export REGION="us-east-1"
