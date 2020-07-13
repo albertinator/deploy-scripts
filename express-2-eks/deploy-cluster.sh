@@ -24,7 +24,6 @@
 # Prep variables
 export AWS_PROFILE="profile_name"
 export CLUSTER_NAME="cluster_name"
-export VM_ID="app_name"
 export REGION="us-east-1"
 export ZONES="${REGION}a,${REGION}b,${REGION}d,${REGION}f"  # avoid c and e where m5 instances are not available
 export NODE_TYPE="m5.large"
@@ -80,14 +79,6 @@ fi
 # Select EKS cluster
 eksctl utils write-kubeconfig --profile ${AWS_PROFILE} --cluster ${CLUSTER_NAME} --region ${REGION}
 kubectl get nodes
-
-# Create repository in ECR registry
-export REPOSITORY_STATUS=$(aws ecr describe-repositories --profile ${AWS_PROFILE} | jq '.repositories | .[] | select(.repositoryName=="'${VM_ID}'")')
-if [ "$REPOSITORY_STATUS" = "" ]  # only if repository doesn't already exist
-then
-  aws ecr create-repository --repository-name ${VM_ID} --profile ${AWS_PROFILE}
-  echo "$(tput setaf 2)Created repository $(tput setab 4)${VM_ID}$(tput sgr0)"
-fi
 
 # Install Tiller (if doesn't exist)
 export TILLER_STATUS="$(kubectl get serviceaccount --namespace kube-system tiller > /dev/null 2>&1 && echo OK || echo FAILED)"

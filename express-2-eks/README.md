@@ -86,7 +86,7 @@ Copy all files in this directory to the root of your Express Web API app. Then o
 
   <tr>
     <td>VM_ID</td>
-    <td>Required</td>
+    <td>Required (<code>deploy.sh</code> only)</td>
     <td>The name of your app. You can name this anything you want, but you should aim for this name to describe your app in a short word because it will be used to name all Kubernetes objects (deployment, service, ingress, secret, etc).
   </tr>
 

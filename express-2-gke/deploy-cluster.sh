@@ -117,7 +117,7 @@ then
     gcloud compute addresses create ${STATIC_IP_NAME} --region ${REGION}
   fi
   gcloud compute addresses list
-  
+
   # create NAT router and config if not exist
   export ROUTER_STATUS="$(gcloud compute routers describe ${ROUTER_NAME} --region ${REGION} > /dev/null 2>&1 && echo OK || echo FAILED)"
   if [ "$ROUTER_STATUS" != "OK" ]

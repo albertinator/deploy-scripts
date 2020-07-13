@@ -26,6 +26,14 @@ export DOMAIN="api.domain.com"
 eksctl utils write-kubeconfig --profile ${AWS_PROFILE} --cluster ${CLUSTER_NAME} --region ${REGION}
 kubectl get nodes
 
+# Create repository in ECR registry
+export REPOSITORY_STATUS=$(aws ecr describe-repositories --profile ${AWS_PROFILE} | jq '.repositories | .[] | select(.repositoryName=="'${VM_ID}'")')
+if [ "$REPOSITORY_STATUS" = "" ]  # only if repository doesn't already exist
+then
+  aws ecr create-repository --repository-name ${VM_ID} --profile ${AWS_PROFILE}
+  echo "$(tput setaf 2)Created repository $(tput setab 4)${VM_ID}$(tput sgr0)"
+fi
+
 # Build and upload app image to registry
 export IMAGE_TAG_STATUS=$(aws ecr list-images --profile ${AWS_PROFILE} --repository-name ${VM_ID} | jq '.imageIds | .[] | select (.imageTag=="'${VERSION}'")')
 if [ "$IMAGE_TAG_STATUS" = "" ]  # only if image tag doesn't already exist
