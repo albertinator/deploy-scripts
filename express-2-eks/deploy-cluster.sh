@@ -33,7 +33,10 @@ export DOMAIN="api.domain.com"
 export USE_NAT="true"
 export NAT_ZONES="${REGION}a,${REGION}b"  # Do the minimum 2 zones because HighlyAvailable NAT means IP in each AZ
 
-# Restricting Kube API access (optional but recommended)
+# Make Kube API endpoint private behind VPC (highly recommended)
+export KUBE_PRIVATE_ENDPOINT="true"
+
+# Restricting public Kube API access (if Kube endpoint public, this is recommended)
 export RESTRICT_API="true"
 export OFFICE_IP="12.34.56.78"
 export VPN_IP="87.65.43.21"
@@ -65,9 +68,19 @@ then
   fi
   echo "$(tput setaf 2)Created cluster $(tput setab 4)${CLUSTER_NAME}$(tput sgr0)"
 
+  if [ "$KUBE_PRIVATE_ENDPOINT" = "true" ]
+  then
+    echo "$(tput setaf 2)Make Kubernetes API endpoint private behind VPC for cluster ${CLUSTER_NAME}$(tput sgr0)"
+    aws eks update-cluster-config \
+      --profile ${AWS_PROFILE} \
+      --name ${CLUSTER_NAME} \
+      --region ${REGION} \
+      --resources-vpc-config endpointPublicAccess=false,endpointPrivateAccess=true
+  fi
+
   if [ "$RESTRICT_API" = "true" ]
   then
-    echo "$(tput setaf 2)Restricting Kubernetes API for cluster ${CLUSTER_NAME} to ${MASTER_AUTHORIZED_NETWORKS}...$(tput sgr0)"
+    echo "$(tput setaf 2)Restricting Kubernetes public API for cluster ${CLUSTER_NAME} to ${MASTER_AUTHORIZED_NETWORKS}...$(tput sgr0)"
     eksctl utils set-public-access-cidrs \
       --approve \
       --profile ${AWS_PROFILE} \
