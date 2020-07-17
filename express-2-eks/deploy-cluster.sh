@@ -68,16 +68,6 @@ then
   fi
   echo "$(tput setaf 2)Created cluster $(tput setab 4)${CLUSTER_NAME}$(tput sgr0)"
 
-  if [ "$KUBE_PRIVATE_ENDPOINT" = "true" ]
-  then
-    echo "$(tput setaf 2)Make Kubernetes API endpoint private behind VPC for cluster ${CLUSTER_NAME}$(tput sgr0)"
-    aws eks update-cluster-config \
-      --profile ${AWS_PROFILE} \
-      --name ${CLUSTER_NAME} \
-      --region ${REGION} \
-      --resources-vpc-config endpointPublicAccess=false,endpointPrivateAccess=true
-  fi
-
   if [ "$RESTRICT_API" = "true" ]
   then
     echo "$(tput setaf 2)Restricting Kubernetes public API for cluster ${CLUSTER_NAME} to ${MASTER_AUTHORIZED_NETWORKS}...$(tput sgr0)"
@@ -153,3 +143,13 @@ echo "$(tput setaf 2)Cluster ${CLUSTER_NAME} is all set!$(tput sgr0)"
 # Set DNS A or CNAME record to point to Nginx Ingress controller IP (get via `kubectl get svc -n nginx-ingress`)
 
 # Whitelist on external services the static IP address for NAT (look at NAT Gateway in AWS console)
+
+if [ "$KUBE_PRIVATE_ENDPOINT" = "true" ]
+then
+  echo "$(tput setaf 2)Make Kubernetes API endpoint private behind VPC for cluster ${CLUSTER_NAME}$(tput sgr0)"
+  aws eks update-cluster-config \
+    --profile ${AWS_PROFILE} \
+    --name ${CLUSTER_NAME} \
+    --region ${REGION} \
+    --resources-vpc-config endpointPublicAccess=false,endpointPrivateAccess=true
+fi
