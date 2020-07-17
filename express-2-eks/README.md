@@ -178,3 +178,10 @@ Finally, to deploy the app from the command line, run:
 ```bash
 $ ./deploy.sh
 ```
+
+## Security
+
+By default, the scripts will deploy the cluster behind a VPC, which means it's not accessible via the public Internet. The bastion deploy script is used to deploy a bastion host within the cluster's VPC that you can SSH into. Get it set up by running:
+```bash
+$ ./bastion-deploy.sh
+```
