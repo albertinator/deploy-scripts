@@ -47,8 +47,8 @@ runuser -l ubuntu -c 'echo rm -rf ~/.aws >> ~/.bash_logout'
 runuser -l ubuntu -c 'echo rm -rf ~/.kube >> ~/.bash_logout'
 
 # securely delete AWS and Kube credentials every 15 mins (in case .bash_logout is not invoked)
-echo "*/5 * * * * rm -rf ~/.aws" >> ubuntu
-echo "*/5 * * * * rm -rf ~/.kube" >> ubuntu
+echo "*/15 * * * * rm -rf ~/.aws" >> ubuntu
+echo "*/15 * * * * rm -rf ~/.kube" >> ubuntu
 chmod 600 ubuntu
 chown ubuntu:crontab ubuntu
 mv ubuntu /var/spool/cron/crontabs/ubuntu
