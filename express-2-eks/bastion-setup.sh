@@ -36,7 +36,9 @@ chmod +x ./kubectl
 mv ./kubectl /usr/local/bin
 kubectl version --short --client
 
-# ask user to enter AWS credentials upon login to SSH session
+# ask user to enter AWS credentials upon login to SSH session (also wipe prev credentials)
+runuser -l ubuntu -c 'echo rm -rf ~/.aws >> ~/.bashrc'
+runuser -l ubuntu -c 'echo rm -rf ~/.kube >> ~/.bashrc'
 runuser -l ubuntu -c 'echo aws configure >> ~/.bashrc'
 runuser \
   -l ubuntu \

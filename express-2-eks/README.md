@@ -185,3 +185,16 @@ By default, the scripts will deploy the cluster behind a VPC, which means it's n
 ```bash
 $ ./bastion-deploy.sh
 ```
+
+The deploy script will create a `.pem` key to get into the bastion host. Make sure to place this key in the bucket [https://console.aws.amazon.com/s3/buckets/zenrpa-bastion](https://console.aws.amazon.com/s3/buckets/zenrpa-bastion).
+
+SSH into the bastion host like this:
+```bash
+$ ssh -i zenrpa-cluster-bastion.pem ubuntu@ec2-x-x-x-x.amazonaws.com
+$ (in host) AWS Access Key ID:
+$ (in host) AWS Secret Access Key:
+```
+
+This will automatically set the Kube config to the `zenrpa-cluster`, assuming your access key allows for it. Use your own access key from your own IAM, which should have sufficient privileges for the cluster. If not, you'll get errors when running any `kubectl` commands.
+
+For security, upon exiting your SSH session, the bastion server's local kubeconfig and AWS credentials will be wiped, and you'll be asked to provide a key again upon the next SSH session. For extra security, upon entering a new SSH session, the local kubeconfig and AWS credentials will also be wiped then.
