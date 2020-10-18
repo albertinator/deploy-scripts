@@ -170,13 +170,13 @@ export CERT_MANAGER_CTRLR_STATUS="$(kubectl get deployment cert-manager -n cert-
 if [ "$CERT_MANAGER_CTRLR_STATUS" != "OK" ]
 then
   echo "$(tput setaf 2)Setting up Certificate Manager Controller...$(tput sgr0)"
-  kubectl apply -f https://raw.githubusercontent.com/jetstack/cert-manager/release-0.8/deploy/manifests/00-crds.yaml
+  kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.0.2/cert-manager.yaml
   kubectl create namespace cert-manager
   kubectl label namespace cert-manager certmanager.k8s.io/disable-validation=true
   helm repo add jetstack https://charts.jetstack.io
   helm repo update
   helm init --upgrade
-  helm install --name cert-manager --namespace cert-manager --version v0.8.1 jetstack/cert-manager --set webhook.enabled=false  # webhook.enabled=false needs to be set for private clusters, but not necessary for public clusters. if necessary, delete cert-manager and re-install with this flag
+  helm install --name cert-manager --namespace cert-manager --version v1.0.2 jetstack/cert-manager --set installCRDs=true --set webhook.enabled=false  # webhook.enabled=false needs to be set for private clusters, but not necessary for public clusters. if necessary, delete cert-manager and re-install with this flag
   cat k8s/issuer.yaml | envsubst | kubectl apply -f -
 fi
 kubectl get deployments -n cert-manager

@@ -8,8 +8,8 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /$1
     kubernetes.io/tls-acme: "true"
     kubernetes.io/ingress.allow-http: "false"
-    certmanager.k8s.io/issuer: "issuer"
-    certmanager.k8s.io/acme-challenge-type: http01
+    cert-manager.io/issuer: "issuer"
+    cert-manager.io/acme-challenge-type: http01
   name: ${VM_ID}
 spec:
   tls:
