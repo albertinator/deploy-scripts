@@ -137,11 +137,11 @@ then
 fi
 
 # Install Tiller (if doesn't exist)
-export TILLER_STATUS="$(kubectl get serviceaccount --namespace kube-system tiller > /dev/null 2>&1 && echo OK || echo FAILED)"
+export TILLER_STATUS="$(kubectl get serviceaccount -n kube-system tiller > /dev/null 2>&1 && echo OK || echo FAILED)"
 if [ "$TILLER_STATUS" != "OK" ]
 then
   echo "$(tput setaf 2)Setting up Tiller...$(tput sgr0)"
-  kubectl create serviceaccount --namespace kube-system tiller
+  kubectl create serviceaccount -n kube-system tiller
   kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
   helm init --service-account tiller
 fi
