@@ -56,6 +56,7 @@ then
       --name ${CLUSTER_NAME} \
       --zones ${NAT_ZONES} \
       --node-type ${NODE_TYPE} \
+      --ssh-access \
       --node-private-networking \
       --vpc-nat-mode HighlyAvailable
   else
@@ -64,7 +65,8 @@ then
       --region ${REGION} \
       --name ${CLUSTER_NAME} \
       --zones ${ZONES} \
-      --node-type ${NODE_TYPE}
+      --node-type ${NODE_TYPE} \
+      --ssh-access
   fi
   echo "$(tput setaf 2)Created cluster $(tput setab 4)${CLUSTER_NAME}$(tput sgr0)"
 
