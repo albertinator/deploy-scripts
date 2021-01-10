@@ -86,7 +86,7 @@ then
       --enable-autorepair
   else
     gcloud container clusters create ${CLUSTER_NAME} \
-      --zone ${ZONE}
+      --zone ${ZONE} \
       --num-nodes 2 \
       --enable-cloud-logging \
       --enable-cloud-monitoring \
