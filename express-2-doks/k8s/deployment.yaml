@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${VM_ID}
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: ${VM_ID}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: ${VM_ID}
+    spec:
+      containers:
+      - name: ${VM_ID}
+        image: gcr.io/${PROJECT_ID}/${VM_ID}:${VERSION}
+        ports:
+        - containerPort: 80
+        env:
+        - name: "NODE_ENV"
+          valueFrom:
+            secretKeyRef:
+              name: ${VM_ID}
+              key: NODE_ENV
+        - name: "MONGODB_URI"
+          valueFrom:
+            secretKeyRef:
+              name: ${VM_ID}
+              key: MONGODB_URI
+        - name: "AWS_ACCESS_KEY_ID"
+          valueFrom:
+            secretKeyRef:
+              name: ${VM_ID}
+              key: AWS_ACCESS_KEY_ID
+        - name: "AWS_SECRET_ACCESS_KEY"
+          valueFrom:
+            secretKeyRef:
+              name: ${VM_ID}
+              key: AWS_SECRET_ACCESS_KEY
+        - name: "S3_BUCKET"
+          valueFrom:
+            secretKeyRef:
+              name: ${VM_ID}
+              key: S3_BUCKET
+        - name: "BROKER_URL"
+          valueFrom:
+            secretKeyRef:
+              name: ${VM_ID}
+              key: BROKER_URL
+        - name: "SENTRY_DSN"
+          valueFrom:
+            secretKeyRef:
+              name: ${VM_ID}
+              key: SENTRY_DSN

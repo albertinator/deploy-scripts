@@ -1,0 +1,13 @@
+# to be used with Helm chart installation for Nginx ingress
+controller:
+  config:
+    proxy-body-size: "50m"
+    enable-underscores-in-headers: "true"
+    proxy-connect-timeout: "60s"
+    proxy-next-upstream-tries: "8"
+  livenessProbe:
+    periodSeconds: 30
+    timeoutSeconds: 10
+  readinessProbe:
+    periodSeconds: 30
+    timeoutSeconds: 10
