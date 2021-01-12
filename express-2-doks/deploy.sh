@@ -19,6 +19,7 @@ export VM_ID="image_name"
 export REGION="sfo2"
 export VERSION="$(git rev-parse --short HEAD)"
 export DOMAIN="api.domain.com"
+export IMAGE_NAME=registry.digitalocean.com/${REGISTRY}/${VM_ID}:${VERSION}
 
 # Select DOKS cluster
 doctl kubernetes cluster kubeconfig save ${CLUSTER_NAME}
@@ -29,9 +30,9 @@ doctl registry login
 export IMAGE_STATUS="$(doctl registry repository list-tags ${VM_ID} --format Tag --no-header | grep ^${VERSION}$ > /dev/null 2>&1 && echo OK || echo FAILED)"
 if [ "$IMAGE_STATUS" = "FAILED" ]  # only if image doesn't already exist
 then
-  docker build -t registry.digitalocean.com/${REGISTRY}/${VM_ID}:${VERSION} .
-  docker push registry.digitalocean.com/${REGISTRY}/${VM_ID}:${VERSION}
-  echo "$(tput setaf 2)Pushed image to DigitalOcean Container Registry: $(tput setab 4)registry.digitalocean.com/${REGISTRY}/${VM_ID}:${VERSION}$(tput sgr0)"
+  docker build -t ${IMAGE_NAME} .
+  docker push ${IMAGE_NAME}
+  echo "$(tput setaf 2)Pushed image to DigitalOcean Container Registry: $(tput setab 4)${IMAGE_NAME}$(tput sgr0)"
 fi
 
 echo "$(tput setaf 2)Applying all ENV secrets for deployment...$(tput sgr0)"

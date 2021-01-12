@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: ${VM_ID}
-        image: gcr.io/${PROJECT_ID}/${VM_ID}:${VERSION}
+        image: ${IMAGE_NAME}
         ports:
         - containerPort: 80
         env:

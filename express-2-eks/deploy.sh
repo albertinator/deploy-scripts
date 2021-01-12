@@ -21,6 +21,7 @@ export VM_ID="app_name"
 export REGION="us-east-1"
 export VERSION="$(git rev-parse --short HEAD)"
 export DOMAIN="api.domain.com"
+export IMAGE_NAME=${AWS_ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/${VM_ID}:${VERSION}
 
 # Select EKS cluster
 eksctl utils write-kubeconfig --profile ${AWS_PROFILE} --cluster ${CLUSTER_NAME} --region ${REGION}
@@ -38,10 +39,10 @@ fi
 export IMAGE_TAG_STATUS=$(aws ecr list-images --profile ${AWS_PROFILE} --repository-name ${VM_ID} | jq '.imageIds | .[] | select (.imageTag=="'${VERSION}'")')
 if [ "$IMAGE_TAG_STATUS" = "" ]  # only if image tag doesn't already exist
 then
-  docker build -t ${AWS_ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/${VM_ID}:${VERSION} .
+  docker build -t ${IMAGE_NAME} .
   `aws ecr get-login --profile ${AWS_PROFILE} --region ${REGION} --no-include-email`
-  docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/${VM_ID}:${VERSION}
-  echo "$(tput setaf 2)Pushed image to registry: $(tput setab 4)${AWS_ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/${VM_ID}:${VERSION}$(tput sgr0)"
+  docker push ${IMAGE_NAME}
+  echo "$(tput setaf 2)Pushed image to ECR Container Registry: $(tput setab 4)${IMAGE_NAME}$(tput sgr0)"
 fi
 
 echo "$(tput setaf 2)Applying all ENV secrets for deployment...$(tput sgr0)"

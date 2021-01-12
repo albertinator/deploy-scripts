@@ -18,6 +18,7 @@ export VM_ID="app_name"
 export ZONE="us-central1-c"
 export VERSION="$(git rev-parse --short HEAD)"
 export DOMAIN="api.domain.com"
+export IMAGE_NAME=gcr.io/${PROJECT_ID}/${VM_ID}:${VERSION}
 
 # Set the project
 gcloud config set project ${PROJECT_ID}
@@ -30,9 +31,9 @@ kubectl get nodes
 export IMAGE_STATUS="$(gcloud container images describe gcr.io/${PROJECT_ID}/${VM_ID}:${VERSION} > /dev/null 2>&1 && echo OK || echo FAILED)"
 if [ "$IMAGE_STATUS" = "FAILED" ]  # only if image doesn't already exist
 then
-  docker build -t gcr.io/${PROJECT_ID}/${VM_ID}:${VERSION} .
-  gcloud docker -- push gcr.io/${PROJECT_ID}/${VM_ID}:${VERSION}
-  echo "$(tput setaf 2)Pushed image to Google Cloud Registry: $(tput setab 4)gcr.io/${PROJECT_ID}/${VM_ID}:${VERSION}$(tput sgr0)"
+  docker build -t ${IMAGE_NAME} .
+  gcloud docker -- push ${IMAGE_NAME}
+  echo "$(tput setaf 2)Pushed image to Google Cloud Registry: $(tput setab 4)${IMAGE_NAME}$(tput sgr0)"
 fi
 
 echo "$(tput setaf 2)Applying all ENV secrets for deployment...$(tput sgr0)"
