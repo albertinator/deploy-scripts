@@ -48,7 +48,7 @@ echo "$(tput setaf 2)Applying all ENV secrets for deployment...$(tput sgr0)"
 cat k8s/deployment-secret.yaml | envsubst | kubectl apply -f -
 kubectl get secrets
 
-echo "$(tput setaf 2)Applying API deployment ${VM_ID}...$(tput sgr0)"
+echo "$(tput setaf 2)Applying deployment ${VM_ID}...$(tput sgr0)"
 cat k8s/deployment.yaml | envsubst | kubectl apply -f -
 kubectl get deployments
 
