@@ -35,6 +35,9 @@ then
 fi
 doctl kubernetes cluster list
 
+# Make sure cluster can use the container registry
+doctl kubernetes cluster registry add ${CLUSTER_NAME}
+
 # Install Tiller (if doesn't exist)
 export TILLER_STATUS="$(kubectl get serviceaccount -n kube-system tiller > /dev/null 2>&1 && echo OK || echo FAILED)"
 if [ "$TILLER_STATUS" != "OK" ]
