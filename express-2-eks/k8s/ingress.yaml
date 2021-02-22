@@ -1,4 +1,4 @@
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
   annotations:
@@ -20,7 +20,7 @@ spec:
   - host: ${DOMAIN}
     http:
       paths:
-      - path: /?(.*)
+      - path: /
         backend:
           serviceName: ${VM_ID}
           servicePort: 3000
