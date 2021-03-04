@@ -35,6 +35,10 @@ then
 fi
 doctl kubernetes cluster list
 
+# Select DOKS cluster
+doctl kubernetes cluster kubeconfig save ${CLUSTER_NAME}
+kubectl get nodes
+
 # Make sure cluster can use the container registry
 doctl kubernetes cluster registry add ${CLUSTER_NAME}
 
